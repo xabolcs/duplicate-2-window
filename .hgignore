@@ -1,0 +1,11 @@
+# use glob syntax.
+syntax: glob
+
+.tmp*
+*.swp
+.DS_Store
+.project
+.settings
+*.xpi
+build
+
