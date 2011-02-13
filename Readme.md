@@ -1,8 +1,9 @@
-Restartless Restart for Firefox 4
+Duplicate 2 Window for Firefox 4
 ===
-Tiny restartless extension adding browser restart actions to Firefox.
-(Oh, the irony)
+Open new windows with the current URL!
 
-The main audience of this extension is other extension developers who need
-to restart the browser often.
+This addon overrides the CTRL-N hotkey and opens the new windows with the current URL.
+Forked from Restartless Restart, thanks to Erik Vold!
+
+The main audience of this extension is the (ex-)IE users who need this new-window behaviour.
 
