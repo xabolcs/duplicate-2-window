@@ -25,6 +25,7 @@
  *   Erik Vold <erikvvold@gmail.com> (Original Author)
  *   Greg Parris <greg.parris@gmail.com>
  *   Nils Maier <maierman@web.de>
+ *   Szabolcs Hubai <szab.hu@gmail.com>
  *
  * ***** END LICENSE BLOCK ***** */
 
@@ -33,13 +34,15 @@ Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/AddonManager.jsm");
 
 const NS_XUL = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-const keyID = "RR:Restart";
-const fileMenuitemID = "menu_FileRestartItem";
+const keyID = "DTW:NewWin";
+const fileMenuitemID = "menu_FileDuplicateToWindowItem";
+const addonID = "duplicate2window@szabolcs.hubai";
 
-const PREF_BRANCH = Services.prefs.getBranch("extensions.restartless-restart.");
+
+const PREF_BRANCH = Services.prefs.getBranch("extensions."+ addonID +".");
 const PREFS = {
-  key: "R",
-  modifiers: "accel,alt"
+  key: "N",
+  modifiers: "accel"
 };
 let PREF_OBSERVER = {
   observe: function(aSubject, aTopic, aData) {
@@ -50,6 +53,8 @@ let PREF_OBSERVER = {
     });
   }
 }
+
+const TYPE_BROWSER = "navigator:browser";
 
 let logo = "";
 
@@ -73,30 +78,34 @@ function addMenuItem(win) {
   removeMI();
 
   // add the new menuitem to File menu
-  let (restartMI = win.document.createElementNS(NS_XUL, "menuitem")) {
-    restartMI.setAttribute("id", fileMenuitemID);
-    restartMI.setAttribute("label", "Restart");
-    restartMI.setAttribute("accesskey", "R");
-    restartMI.setAttribute("key", keyID);
-    restartMI.addEventListener("command", restart, true);
+  let (D2WindowMI = win.document.createElementNS(NS_XUL, "menuitem")) {
+    D2WindowMI.setAttribute("id", fileMenuitemID);
+    D2WindowMI.setAttribute("label", "Duplicate to New Window");
+    D2WindowMI.setAttribute("accesskey", "N");
+    D2WindowMI.setAttribute("key", keyID);
+    D2WindowMI.addEventListener("command", newWindow, true);
 
-    $("menu_FilePopup").insertBefore(restartMI, $("menu_FileQuitItem"));
+    $("menu_FilePopup").insertBefore(D2WindowMI, $("menu_newNavigator"));
   }
 
   unload(removeMI, win);
 }
 
-function restart() {
-  let canceled = Cc["@mozilla.org/supports-PRBool;1"]
-      .createInstance(Ci.nsISupportsPRBool);
-
-  Services.obs.notifyObservers(canceled, "quit-application-requested", "restart");
-
-  if (canceled.data) return false; // somebody canceled our quit request
-
-  Cc['@mozilla.org/toolkit/app-startup;1'].getService(Ci.nsIAppStartup)
-      .quit(Ci.nsIAppStartup.eAttemptQuit | Ci.nsIAppStartup.eRestart);
-
+function newWindow(aEvent) {
+  let wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                   .getService(Components.interfaces.nsIWindowMediator);
+  let window = wm.getMostRecentWindow(TYPE_BROWSER);
+  
+  let chromeUrl = "chrome://browser/content/";
+  try
+  {
+    chromeUrl = window.gPrefService.getCharPref('browser.chromeURL');
+  }
+  catch (err) {}
+  
+  
+  window.openDialog(chromeUrl, '_blank', 'chrome,all,dialog=no', window.gBrowser.currentURI.spec);
+  
   return true;
 }
 
@@ -105,33 +114,39 @@ function main(win) {
   function $(id) doc.getElementById(id);
 
   // add hotkey
-  let (restartKey = doc.createElementNS(NS_XUL, "key")) {
-    restartKey.setAttribute("id", keyID);
-    restartKey.setAttribute("key", getPref("key"));
-    restartKey.setAttribute("modifiers", getPref("modifiers"));
-    restartKey.setAttribute("oncommand", "void(0);");
-    restartKey.addEventListener("command", restart, true);
-    $("mainKeyset").appendChild(restartKey);
+  let (D2WindowKey = doc.createElementNS(NS_XUL, "key")) {
+    D2WindowKey.setAttribute("id", keyID);
+    D2WindowKey.setAttribute("key", getPref("key"));
+    D2WindowKey.setAttribute("modifiers", getPref("modifiers"));
+    D2WindowKey.setAttribute("oncommand", "void(0);");
+    D2WindowKey.addEventListener("command", newWindow, true);
+    $("mainKeyset").insertBefore(D2WindowKey, $("key_newNavigator"));
   }
 
   // add menu bar item to File menu
   addMenuItem(win);
 
-  // add app menu item to Firefox button for Windows 7
-  let appMenu = $("appmenuPrimaryPane"), restartAMI;
-  if (appMenu) {
-    restartAMI = $(fileMenuitemID).cloneNode(false);
-    restartAMI.setAttribute("id", "appmenu_RestartItem");
-    restartAMI.setAttribute("class", "menuitem-iconic menuitem-iconic-tooltip");
-    restartAMI.style.listStyleImage = "url('" + logo + "')";
-    restartAMI.addEventListener("command", restart, true);
-    appMenu.insertBefore(restartAMI, $("appmenu-quit"));
-  }
 
+  // add app menu item to Firefox button for Windows 7
+  let appMenu = $("appmenu_newNavigator").parentNode, D2WindowAMI;
+  if (appMenu) {
+    try {
+      D2WindowAMI = $(fileMenuitemID).cloneNode(false);
+      D2WindowAMI.setAttribute("id", "appmenu_DuplicateToWindowItem");
+      D2WindowAMI.setAttribute("class", "menuitem-iconic menuitem-iconic-tooltip");
+      D2WindowAMI.style.listStyleImage = "url('" + logo + "')";
+      D2WindowAMI.addEventListener("command", newWindow, true);
+      appMenu.insertBefore(D2WindowAMI, $("appmenu_newNavigator"));
+    } catch(ex) {
+      dump(addonID+' appmenu:'+ex.message+'\n');
+    }
+  }
+  
+  
   unload(function() {
     var key = $(keyID);
     key && key.parentNode.removeChild(key);
-    appMenu && appMenu.removeChild(restartAMI);
+    appMenu && appMenu.removeChild(D2WindowAMI);
   }, win);
 }
 
@@ -140,7 +155,7 @@ function uninstall(){}
 function startup(data) AddonManager.getAddonByID(data.id, function(addon) {
   var prefs = PREF_BRANCH;
   include(addon.getResourceURI("includes/utils.js").spec);
-  logo = addon.getResourceURI("images/refresh_16.png").spec;
+  logo = addon.getResourceURI("images/d2w_16.png").spec;
   watchWindows(main);
   prefs = prefs.QueryInterface(Components.interfaces.nsIPrefBranch2);
   prefs.addObserver("", PREF_OBSERVER, false);
