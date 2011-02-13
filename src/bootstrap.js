@@ -34,6 +34,7 @@ Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/AddonManager.jsm");
 
 const NS_XUL = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+const keysetID = "duplicate-2-window-keyset";
 const keyID = "DTW:NewWin";
 const fileMenuitemID = "menu_FileDuplicateToWindowItem";
 const addonID = "duplicate2window@szabolcs.hubai";
@@ -49,6 +50,7 @@ let PREF_OBSERVER = {
     if ("nsPref:changed" != aTopic || !PREFS[aData]) return;
     runOnWindows(function(win) {
       win.document.getElementById(keyID).setAttribute(aData, getPref(aData));
+      refreshKS(win.document.getElementById(keyID).parentNode);
       addMenuItem(win);
     });
   }
@@ -91,6 +93,22 @@ function addMenuItem(win) {
   unload(removeMI, win);
 }
 
+function refreshKS(aKeySet) {
+  if (aKeySet) {
+    var parent = aKeySet.parentNode;
+    var nextn = aKeySet.nextSibling;
+    parent.removeChild(aKeySet);
+    if (nextn) {
+      parent.insertBefore(aKeySet, nextn);
+    } else {
+      parent.appendChild(aKeySet);
+    }
+    
+    parent = void(0);
+    nextn = void(0);
+  }
+}
+
 function newWindow(aEvent) {
   let wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                    .getService(Components.interfaces.nsIWindowMediator);
@@ -122,6 +140,8 @@ function main(win) {
     D2WindowKey.addEventListener("command", newWindow, true);
     $("mainKeyset").insertBefore(D2WindowKey, $("key_newNavigator"));
   }
+  
+  refreshKS($(keyID).parentNode);
 
   // add menu bar item to File menu
   addMenuItem(win);
@@ -145,8 +165,10 @@ function main(win) {
   
   unload(function() {
     var key = $(keyID);
+    var keyParent = key.parentNode;
     key && key.parentNode.removeChild(key);
     appMenu && appMenu.removeChild(D2WindowAMI);
+    refreshKS(keyParent);
   }, win);
 }
 
