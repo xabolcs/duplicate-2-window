@@ -8,4 +8,5 @@ syntax: glob
 .settings
 *.xpi
 build
+install.rdf
 
