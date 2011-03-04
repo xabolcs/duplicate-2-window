@@ -7,3 +7,6 @@ Forked from Restartless Restart, thanks to Erik Vold!
 
 The main audience of this extension is the (ex-)IE users who need this new-window behaviour.
 
+
+
+The secondary / Mercurial repository is at http://code.google.com/p/duplicate2window/ if you don't like hg-git.
