@@ -28,10 +28,27 @@
  *   Szabolcs Hubai <szab.hu@gmail.com>
  *
  * ***** END LICENSE BLOCK ***** */
+const PACKAGE = "duplicate2window";
+
+const EXPORTED_SYMBOLS = ['main'];
 
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource://gre/modules/AddonManager.jsm");
+
+const reportError = Cu.reportError;
+
+let Services;
+try {
+  Cu.import("resource://gre/modules/Services.jsm");
+  Cu.import("resource://gre/modules/AddonManager.jsm");
+} catch (ex) {
+  Cu.import("resource://duplicate2window/includes/unload.js");
+  Services = {
+    prefs : Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService),
+    scriptloader : Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader),
+    wm: Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator),
+    ww: Cc["@mozilla.org/embedcomp/window-watcher;1"].getService(Ci.nsIWindowWatcher)
+  };
+}
 
 const NS_XUL = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 const keysetID = "duplicate-2-window-keyset";
@@ -146,7 +163,7 @@ function main(win) {
   // add menu bar item to File menu
   addMenuItem(win);
 
-
+  try {
   // add app menu item to Firefox button for Windows 7
   let appMenu = $("appmenu_newNavigator").parentNode, D2WindowAMI;
   if (appMenu) {
@@ -161,7 +178,7 @@ function main(win) {
       dump(addonID+' appmenu:'+ex.message+'\n');
     }
   }
-  
+  } catch(ex){}
   
   unload(function() {
     var key = $(keyID);
@@ -176,6 +193,7 @@ function install(){}
 function uninstall(){}
 function startup(data) AddonManager.getAddonByID(data.id, function(addon) {
   var prefs = PREF_BRANCH;
+  include(addon.getResourceURI("includes/unload.js").spec);
   include(addon.getResourceURI("includes/utils.js").spec);
   logo = addon.getResourceURI("images/d2w_16.png").spec;
   watchWindows(main);

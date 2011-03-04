@@ -1,0 +1,5 @@
+overlay chrome://browser/content/browser.xul chrome://duplicate2window/content/
+content duplicate2window ./
+# locale duplicate2window en-US locale/en-US/
+# locale duplicate2window de locale/de/
+resource duplicate2window ./
