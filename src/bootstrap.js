@@ -30,7 +30,7 @@
  * ***** END LICENSE BLOCK ***** */
 const PACKAGE = "duplicate2window";
 
-const EXPORTED_SYMBOLS = ['main'];
+var   EXPORTED_SYMBOLS = ['startupGecko19x'];
 
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
@@ -41,15 +41,15 @@ try {
   Cu.import("resource://gre/modules/Services.jsm");
   Cu.import("resource://gre/modules/AddonManager.jsm");
 } catch (ex) {
-  Cu.import("resource://"+ PACKAGE +"/includes/unload.js");
-  Cu.import("resource://"+ PACKAGE +"/includes/startupgecko19x.js");
+
   Services = {
     prefs : Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService),
     scriptloader : Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader),
     wm: Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator),
-    ww: Cc["@mozilla.org/embedcomp/window-watcher;1"].getService(Ci.nsIWindowWatcher)
+    ww: Cc["@mozilla.org/embedcomp/window-watcher;1"].getService(Ci.nsIWindowWatcher),
+    strings: Cc["@mozilla.org/intl/stringbundle;1"].getService(Ci.nsIStringBundleService),
   };
-    
+  
 }
 
 const NS_XUL = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
@@ -62,7 +62,6 @@ const addonID = "duplicate2window@szabolcs.hubai";
 const PREF_BRANCH = Services.prefs.getBranch("extensions."+ addonID +".");
 const PREFS = {
   get key() _("duplicate2window.ak", getPref("locale")),
-  //key: "N",
   modifiers: "accel",
   locale: undefined
 };
@@ -93,6 +92,11 @@ let logo = "";
 (function(global) global.include = function include(src) (
     Services.scriptloader.loadSubScript(src, global)))(this);
 
+if (!('setTimeout' in this)) {
+  let Timer = Components.Constructor('@mozilla.org/timer;1', 'nsITimer', 'init');
+  this.setTimeout = function(fun, timeout) new Timer({observe: function() fun()}, timeout, 0);
+}    
+    
 function getPref(aName) {
   try {
     return PREF_BRANCH.getComplexValue(aName, Ci.nsISupportsString).data;
@@ -140,9 +144,11 @@ function refreshKS(aKeySet) {
 }
 
 function newWindow(aEvent) {
-  let wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                   .getService(Components.interfaces.nsIWindowMediator);
-  let window = wm.getMostRecentWindow(TYPE_BROWSER);
+  let window = Services.wm.getMostRecentWindow(TYPE_BROWSER);
+  let newWindowUrl = window.gBrowser.currentURI.spec;
+  
+  // to be Google translate safe
+  newWindowUrl = newWindowUrl.replace(/\|/g, '%7C');
   
   let chromeUrl = "chrome://browser/content/";
   try
@@ -152,7 +158,9 @@ function newWindow(aEvent) {
   catch (err) {}
   
   
-  window.openDialog(chromeUrl, '_blank', 'chrome,all,dialog=no', window.gBrowser.currentURI.spec);
+  try {
+    window.openDialog(chromeUrl, '_blank', 'chrome,all,dialog=no', newWindowUrl);
+  } catch (err) {reportError(err); reportError(newWindowUrl); }
   
   return true;
 }
@@ -202,9 +210,20 @@ function main(win) {
   }, win);
 }
 
+function startupGecko19x(win) {
+  include("resource://"+ PACKAGE +"/includes/startupgecko19x.js");
+  
+  include(addonGecko19x.getResourceURI("includes/l10n.js").spec);
+  l10n(addonGecko19x, PACKAGE + ".properties");
+
+  var prefs = PREF_BRANCH;
+  include(addonGecko19x.getResourceURI("includes/utils.js").spec);
+  main(win);
+}
+
 function install(){}
 function uninstall(){}
-function startup(data) AddonManager.getAddonByID(data.id, function(addon) {
+function startup(data) setTimeout (function() AddonManager.getAddonByID(data.id, function(addon) {
   include(addon.getResourceURI("includes/l10n.js").spec);
   l10n(addon, PACKAGE + ".properties");
 
@@ -215,5 +234,5 @@ function startup(data) AddonManager.getAddonByID(data.id, function(addon) {
   prefs = prefs.QueryInterface(Components.interfaces.nsIPrefBranch2);
   prefs.addObserver("", PREF_OBSERVER, false);
   unload(function() prefs.removeObserver("", PREF_OBSERVER));
-});
+}), 100);
 function shutdown(data, reason) { if (reason !== APP_SHUTDOWN) unload(); }

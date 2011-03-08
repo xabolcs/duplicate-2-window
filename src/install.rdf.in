@@ -5,7 +5,7 @@
     <creator>Szabolcs Hubai</creator>
     <id>duplicate2window@szabolcs.hubai</id>
     <name>Duplicate 2 Window</name>
-    <version>1pre2</version>
+    <version>1pre3</version>
     <bootstrap>true</bootstrap>
     <type>2</type>
     <homepageURL>https://github.com/xabolcs/duplicate-2-window</homepageURL>
@@ -18,7 +18,7 @@
     <targetApplication>
       <r:Description>
         <id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</id>
-        <minVersion>3.6</minVersion>
+        <minVersion>3.0</minVersion>
         <maxVersion>4.0.*</maxVersion>
       </r:Description>
     </targetApplication>

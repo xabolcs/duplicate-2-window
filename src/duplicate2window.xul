@@ -6,7 +6,7 @@
 			removeEventListener('load', arguments.callee, true);
 			let _m = {};
 			Components.utils.import("resource://duplicate2window/bootstrap.js", _m);
-			_m.main(window);
+			_m.startupGecko19x(window);
 		}, true);
 	]]></script>
 </overlay>
