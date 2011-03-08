@@ -41,13 +41,15 @@ try {
   Cu.import("resource://gre/modules/Services.jsm");
   Cu.import("resource://gre/modules/AddonManager.jsm");
 } catch (ex) {
-  Cu.import("resource://duplicate2window/includes/unload.js");
+  Cu.import("resource://"+ PACKAGE +"/includes/unload.js");
+  Cu.import("resource://"+ PACKAGE +"/includes/startupgecko19x.js");
   Services = {
     prefs : Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService),
     scriptloader : Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader),
     wm: Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator),
     ww: Cc["@mozilla.org/embedcomp/window-watcher;1"].getService(Ci.nsIWindowWatcher)
   };
+    
 }
 
 const NS_XUL = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
@@ -59,14 +61,25 @@ const addonID = "duplicate2window@szabolcs.hubai";
 
 const PREF_BRANCH = Services.prefs.getBranch("extensions."+ addonID +".");
 const PREFS = {
-  key: "N",
-  modifiers: "accel"
+  get key() _("duplicate2window.ak", getPref("locale")),
+  //key: "N",
+  modifiers: "accel",
+  locale: undefined
 };
 let PREF_OBSERVER = {
   observe: function(aSubject, aTopic, aData) {
-    if ("nsPref:changed" != aTopic || !PREFS[aData]) return;
+    if ("nsPref:changed" != aTopic || !(aData in PREFS)) return;
     runOnWindows(function(win) {
-      win.document.getElementById(keyID).setAttribute(aData, getPref(aData));
+      switch (aData) {
+        case "locale":
+          win.document.getElementById(keyID)
+              .setAttribute("label", _("duplicate2window", getPref("locale")));
+          break;
+        default:
+          win.document.getElementById(keyID)
+              .setAttribute(aData, getPref(aData));
+          break;
+      }
       refreshKS(win.document.getElementById(keyID).parentNode);
       addMenuItem(win);
     });
@@ -99,8 +112,8 @@ function addMenuItem(win) {
   // add the new menuitem to File menu
   let (D2WindowMI = win.document.createElementNS(NS_XUL, "menuitem")) {
     D2WindowMI.setAttribute("id", fileMenuitemID);
-    D2WindowMI.setAttribute("label", "Duplicate to New Window");
-    D2WindowMI.setAttribute("accesskey", "N");
+    D2WindowMI.setAttribute("label", _("duplicate2window", getPref("locale")));
+    D2WindowMI.setAttribute("accesskey", getPref("key"));
     D2WindowMI.setAttribute("key", keyID);
     D2WindowMI.addEventListener("command", newWindow, true);
 
@@ -192,8 +205,10 @@ function main(win) {
 function install(){}
 function uninstall(){}
 function startup(data) AddonManager.getAddonByID(data.id, function(addon) {
+  include(addon.getResourceURI("includes/l10n.js").spec);
+  l10n(addon, PACKAGE + ".properties");
+
   var prefs = PREF_BRANCH;
-  include(addon.getResourceURI("includes/unload.js").spec);
   include(addon.getResourceURI("includes/utils.js").spec);
   logo = addon.getResourceURI("images/d2w_16.png").spec;
   watchWindows(main);
