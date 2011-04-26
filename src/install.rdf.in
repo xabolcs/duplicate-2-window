@@ -8,7 +8,6 @@
     <version>1pre3</version>
     <bootstrap>true</bootstrap>
     <type>2</type>
-    <iconURL>chrome://duplicate2window/content/icon.png</iconURL>
     <homepageURL>https://github.com/xabolcs/duplicate-2-window</homepageURL>
 
     <contributor>Erik Vold; http://erikvold.com/</contributor>
