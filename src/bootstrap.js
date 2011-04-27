@@ -58,6 +58,19 @@ const keyID = "DTW:NewWin";
 const fileMenuitemID = "menu_FileDuplicateToWindowItem";
 const addonID = "duplicate2window@szabolcs.hubai";
 
+switch(Services.appinfo.name) {
+case "Thunderbird":
+  var XUL_APP_SPECIFIC = {
+    windowType: "mail:3pane",
+    baseKeyset: "mailKeys"
+  };
+  break;
+default: //"Firefox", "SeaMonkey"
+  var XUL_APP_SPECIFIC = {
+    windowType: "navigator:browser",
+    baseKeyset: "mainKeyset"
+  };
+}
 
 const PREF_BRANCH = Services.prefs.getBranch("extensions."+ addonID +".");
 const PREFS = {
@@ -81,7 +94,7 @@ let PREF_OBSERVER = {
       }
       refreshKS(win.document.getElementById(keyID).parentNode);
       addMenuItem(win);
-    });
+    }, XUL_APP_SPECIFIC.windowType);
   }
 }
 
@@ -177,7 +190,7 @@ function main(win) {
     D2WindowKey.setAttribute("modifiers", getPref("modifiers"));
     D2WindowKey.setAttribute("oncommand", "void(0);");
     D2WindowKey.addEventListener("command", newWindow, true);
-    $("mainKeyset").insertBefore(D2WindowKey, $("key_newNavigator"));
+    $(XUL_APP_SPECIFIC.baseKeyset).insertBefore(D2WindowKey, $("key_newNavigator"));
   }
   
   refreshKS($(keyID).parentNode);
@@ -236,7 +249,7 @@ function startup(data) setTimeout (function() AddonManager.getAddonByID(data.id,
   unload(l10n.unload);
 
   logo = addon.getResourceURI("images/d2w_16.png").spec;
-  watchWindows(main);
+  watchWindows(main, XUL_APP_SPECIFIC.windowType);
   prefs = prefs.QueryInterface(Components.interfaces.nsIPrefBranch2);
   prefs.addObserver("", PREF_OBSERVER, false);
   unload(function() prefs.removeObserver("", PREF_OBSERVER));
