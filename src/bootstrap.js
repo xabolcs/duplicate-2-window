@@ -166,6 +166,7 @@ function newWindow(aEvent) {
 }
 
 function main(win) {
+  try {
   let doc = win.document;
   function $(id) doc.getElementById(id);
 
@@ -184,7 +185,7 @@ function main(win) {
   // add menu bar item to File menu
   addMenuItem(win);
 
-  try {
+
   // add app menu item to Firefox button for Windows 7
   let appMenu = $("appmenu_newNavigator").parentNode, D2WindowAMI;
   if (appMenu) {
@@ -196,18 +197,21 @@ function main(win) {
       D2WindowAMI.addEventListener("command", newWindow, true);
       appMenu.insertBefore(D2WindowAMI, $("appmenu_newNavigator"));
     } catch(ex) {
-      dump(addonID+' appmenu:'+ex.message+'\n');
+      reportError(ex);
     }
   }
-  } catch(ex){}
   
   unload(function() {
+    try {
     var key = $(keyID);
     var keyParent = key.parentNode;
     key && key.parentNode.removeChild(key);
     appMenu && appMenu.removeChild(D2WindowAMI);
     refreshKS(keyParent);
+    } catch(ex){ reportError(ex); }
   }, win);
+  
+  } catch(ex){ reportError(ex); }
 }
 
 function startupGecko19x(win) {
