@@ -228,11 +228,13 @@ function startupGecko19x(win) {
 function install(){}
 function uninstall(){}
 function startup(data) setTimeout (function() AddonManager.getAddonByID(data.id, function(addon) {
-  include(addon.getResourceURI("includes/l10n.js").spec);
-  l10n(addon, PACKAGE + ".properties");
-
   var prefs = PREF_BRANCH;
+  include(addon.getResourceURI("includes/l10n.js").spec);
   include(addon.getResourceURI("includes/utils.js").spec);
+
+  l10n(addon, PACKAGE + ".properties");
+  unload(l10n.unload);
+
   logo = addon.getResourceURI("images/d2w_16.png").spec;
   watchWindows(main);
   prefs = prefs.QueryInterface(Components.interfaces.nsIPrefBranch2);
