@@ -39,7 +39,6 @@ const reportError = Cu.reportError;
 let Services;
 try {
   Cu.import("resource://gre/modules/Services.jsm");
-  Cu.import("resource://gre/modules/AddonManager.jsm");
 } catch (ex) {
 
   Services = {
@@ -249,9 +248,15 @@ function startupGecko19x(win) {
   main(win);
 }
 
+var addon = {
+  getResourceURI: function(filePath) ({
+    spec: __SCRIPT_URI_SPEC__ + "/../" + filePath
+  })
+}
+
 function install(){}
 function uninstall(){}
-function startup(data) setTimeout (function() AddonManager.getAddonByID(data.id, function(addon) {
+function startup(data) setTimeout (function() {
   var prefs = PREF_BRANCH;
   include(addon.getResourceURI("includes/l10n.js").spec);
   include(addon.getResourceURI("includes/utils.js").spec);
