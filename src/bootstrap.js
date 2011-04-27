@@ -73,6 +73,7 @@ default: //"Firefox", "SeaMonkey"
 }
 
 const PREF_BRANCH = Services.prefs.getBranch("extensions."+ addonID +".");
+// pref defaults
 const PREFS = {
   get key() _("duplicate2window.ak", getPref("locale")),
   modifiers: "accel",
@@ -87,7 +88,8 @@ let PREF_OBSERVER = {
           win.document.getElementById(keyID)
               .setAttribute("label", _("duplicate2window", getPref("locale")));
           break;
-        default:
+        case "key":
+        case "modifiers":
           win.document.getElementById(keyID)
               .setAttribute(aData, getPref(aData));
           break;
@@ -111,9 +113,18 @@ if (!('setTimeout' in this)) {
 }    
     
 function getPref(aName) {
-  try {
-    return PREF_BRANCH.getComplexValue(aName, Ci.nsISupportsString).data;
-  } catch(e) {}
+  var pref = PREF_BRANCH;
+  var type = pref.getPrefType(aName);
+
+  // if the type is valid, then return the value
+  switch(type) {
+  case pref.PREF_STRING:
+    return pref.getComplexValue(aName, Ci.nsISupportsString).data;
+  case pref.PREF_BOOL:
+    return pref.getBoolPref(aName);
+  }
+
+  // return default
   return PREFS[aName];
 }
 
