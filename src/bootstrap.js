@@ -36,9 +36,16 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 const reportError = Cu.reportError;
 
-let Services;
+let Services, addon;
 try {
   Cu.import("resource://gre/modules/Services.jsm");
+  
+  addon = {
+    getResourceURI: function(filePath) ({
+      spec: __SCRIPT_URI_SPEC__ + "/../" + filePath
+    })
+  };
+  
 } catch (ex) {
 
   Services = {
@@ -50,6 +57,11 @@ try {
     , strings: Cc["@mozilla.org/intl/stringbundle;1"].getService(Ci.nsIStringBundleService)
   };
   
+  addon = {
+    getResourceURI: function(filePath) ({
+      spec: "resource://"+ PACKAGE + "/" + filePath
+    })
+  }
 }
 
 const NS_XUL = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
@@ -237,20 +249,14 @@ function main(win) {
 }
 
 function startupGecko19x(win) {
-  include("resource://"+ PACKAGE +"/includes/startupgecko19x.js");
-  
-  include(addonGecko19x.getResourceURI("includes/l10n.js").spec);
-  l10n(addonGecko19x, PACKAGE + ".properties");
-
   var prefs = PREF_BRANCH;
-  include(addonGecko19x.getResourceURI("includes/utils.js").spec);
-  main(win);
-}
+  include(addon.getResourceURI("includes/l10n.js").spec);
+  include(addon.getResourceURI("includes/utils.js").spec);
 
-var addon = {
-  getResourceURI: function(filePath) ({
-    spec: __SCRIPT_URI_SPEC__ + "/../" + filePath
-  })
+  l10n(addon, PACKAGE + ".properties");
+  unload(l10n.unload);
+
+  main(win);
 }
 
 function startupGecko2x() {
