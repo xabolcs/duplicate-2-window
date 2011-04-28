@@ -10,7 +10,7 @@ cat install.rdf.in > install.rdf
 rm -rf build
 mkdir build
 cp -r \
-  bootstrap.js images includes locale install.rdf icon.png icon64.png \
+  bootstrap.js images includes locale install.rdf icon.png icon64.png duplicate2window.xul chrome.manifest \
   build/
 cd build
 
