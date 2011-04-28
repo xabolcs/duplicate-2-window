@@ -265,5 +265,12 @@ function startupGecko2x() {
   prefs = prefs.QueryInterface(Components.interfaces.nsIPrefBranch2);
   prefs.addObserver("", PREF_OBSERVER, false);
   unload(function() prefs.removeObserver("", PREF_OBSERVER));
-}), 100);
+  } catch(ex) { reportError(ex); }
+}
+
+function install(){}
+function uninstall(){}
+function startup(data) {
+  startupGecko2x();
+}
 function shutdown(data, reason) { if (reason !== APP_SHUTDOWN) unload(); }
