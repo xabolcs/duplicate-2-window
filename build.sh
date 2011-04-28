@@ -1,11 +1,12 @@
 #!/bin/sh
 
-VER=`grep -Go 'version\>\(.*\)\<' src/install.rdf | grep -Go '>\(.*\)<' | sed -e 's/[><]*//g'`
-XPI="restartless-restart-$VER.xpi"
+VER=`grep -Go 'version\>\(.*\)\<' src/install.rdf.in | grep -Go '>\(.*\)<' | sed -e 's/[><]*//g'`
+XPI="duplicate2window-$VER.xpi"
 echo "Building $XPI ..."
 
 # Copy base structure to a temporary build directory and move in to it
 cd src
+cat install.rdf.in > install.rdf
 rm -rf build
 mkdir build
 cp -r \
