@@ -42,11 +42,12 @@ try {
 } catch (ex) {
 
   Services = {
-    prefs : Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService),
-    scriptloader : Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader),
-    wm: Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator),
-    ww: Cc["@mozilla.org/embedcomp/window-watcher;1"].getService(Ci.nsIWindowWatcher),
-    strings: Cc["@mozilla.org/intl/stringbundle;1"].getService(Ci.nsIStringBundleService),
+    appinfo: Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo)
+    , prefs : Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService)
+    , scriptloader : Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader)
+    , wm: Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator)
+    , ww: Cc["@mozilla.org/embedcomp/window-watcher;1"].getService(Ci.nsIWindowWatcher)
+    , strings: Cc["@mozilla.org/intl/stringbundle;1"].getService(Ci.nsIStringBundleService)
   };
   
 }
@@ -207,9 +208,10 @@ function main(win) {
 
 
   // add app menu item to Firefox button for Windows 7
-  let appMenu = $("appmenu_newNavigator").parentNode, D2WindowAMI;
+  let appMenu = $("appmenu_newNavigator"), D2WindowAMI;
   if (appMenu) {
     try {
+      appMenu = appMenu.parentNode;
       D2WindowAMI = $(fileMenuitemID).cloneNode(false);
       D2WindowAMI.setAttribute("id", "appmenu_DuplicateToWindowItem");
       D2WindowAMI.setAttribute("class", "menuitem-iconic menuitem-iconic-tooltip");
