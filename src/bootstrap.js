@@ -56,19 +56,16 @@ const keysetID = "duplicate-2-window-keyset";
 const keyID = "DTW:NewWin";
 const fileMenuitemID = "menu_FileDuplicateToWindowItem";
 const addonID = "duplicate2window@szabolcs.hubai";
+var XUL_APP = {name: Services.appinfo.name};
 
 switch(Services.appinfo.name) {
 case "Thunderbird":
-  var XUL_APP_SPECIFIC = {
-    windowType: "mail:3pane",
-    baseKeyset: "mailKeys"
-  };
+  XUL_APP.winType = "mail:3pane";
+  XUL_APP.baseKeyset = "mailKeys";
   break;
 default: //"Firefox", "SeaMonkey"
-  var XUL_APP_SPECIFIC = {
-    windowType: "navigator:browser",
-    baseKeyset: "mainKeyset"
-  };
+  XUL_APP.winType = "navigator:browser";
+  XUL_APP.baseKeyset = "mainKeyset";
 }
 
 const PREF_BRANCH = Services.prefs.getBranch("extensions."+ addonID +".");
@@ -95,7 +92,7 @@ let PREF_OBSERVER = {
       }
       refreshKS(win.document.getElementById(keyID).parentNode);
       addMenuItem(win);
-    }, XUL_APP_SPECIFIC.windowType);
+    }, XUL_APP.winType);
   }
 }
 
@@ -200,7 +197,7 @@ function main(win) {
     D2WindowKey.setAttribute("modifiers", getPref("modifiers"));
     D2WindowKey.setAttribute("oncommand", "void(0);");
     D2WindowKey.addEventListener("command", newWindow, true);
-    $(XUL_APP_SPECIFIC.baseKeyset).insertBefore(D2WindowKey, $("key_newNavigator"));
+    $(XUL_APP.baseKeyset).insertBefore(D2WindowKey, $("key_newNavigator"));
   }
   
   refreshKS($(keyID).parentNode);
@@ -254,9 +251,8 @@ var addon = {
   })
 }
 
-function install(){}
-function uninstall(){}
-function startup(data) setTimeout (function() {
+function startupGecko2x() {
+  try {
   var prefs = PREF_BRANCH;
   include(addon.getResourceURI("includes/l10n.js").spec);
   include(addon.getResourceURI("includes/utils.js").spec);
@@ -265,7 +261,7 @@ function startup(data) setTimeout (function() {
   unload(l10n.unload);
 
   logo = addon.getResourceURI("images/d2w_16.png").spec;
-  watchWindows(main, XUL_APP_SPECIFIC.windowType);
+  watchWindows(main, XUL_APP.winType);
   prefs = prefs.QueryInterface(Components.interfaces.nsIPrefBranch2);
   prefs.addObserver("", PREF_OBSERVER, false);
   unload(function() prefs.removeObserver("", PREF_OBSERVER));
