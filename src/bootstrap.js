@@ -128,24 +128,6 @@ function addMenuItem(win) {
   unload(removeMI, win);
 }
 
-function restart() {
-  let canceled = Cc["@mozilla.org/supports-PRBool;1"]
-      .createInstance(Ci.nsISupportsPRBool);
-
-  Services.obs.notifyObservers(canceled, "quit-application-requested", "restart");
-
-  if (canceled.data) return false; // somebody canceled our quit request
-
-  // disable fastload cache?
-  if (getPref("disable_fastload")) Services.appinfo.invalidateCachesOnRestart();
-
-  // restart
-  Cc['@mozilla.org/toolkit/app-startup;1'].getService(Ci.nsIAppStartup)
-      .quit(Ci.nsIAppStartup.eAttemptQuit | Ci.nsIAppStartup.eRestart);
-
-  return true;
-}
-
 function main(win) {
   let doc = win.document;
   function $(id) doc.getElementById(id);
