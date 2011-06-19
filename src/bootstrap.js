@@ -151,10 +151,12 @@ function addMenuItem(win) {
   // add the new menuitem to File menu
   let (D2WindowMI = win.document.createElementNS(NS_XUL, "menuitem")) {
     D2WindowMI.setAttribute("id", fileMenuitemID);
+    D2WindowMI.setAttribute("class", "menuitem-iconic");
     D2WindowMI.setAttribute("label", _(PACKAGE, getPref("locale")));
     D2WindowMI.setAttribute("accesskey", getPref("key"));
     D2WindowMI.setAttribute("key", keyID);
     D2WindowMI.addEventListener("command", newWindow, true);
+    D2WindowMI.style.listStyleImage = "url('" + logo + "')";
 
     $("menu_FilePopup").insertBefore(D2WindowMI, $("menu_newNavigator"));
   }
