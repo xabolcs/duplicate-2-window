@@ -272,7 +272,8 @@ function main(win) {
     if (d2wTBB != aEvt.target) return;
     d2wTBB.setAttribute("label", _(PACKAGE, getPref("locale")));
     setPref("toolbar", d2wTBB.parentNode.getAttribute("id") || "");
-    setPref("toolbar.before", (d2wTBB.nextSibling || "") && d2wTBB.nextSibling.getAttribute("id"));
+    setPref("toolbar.before", (d2wTBB.nextSibling || "")
+        && d2wTBB.nextSibling.getAttribute("id").replace(/^wrapper-/i, ""));
   }
   win.addEventListener("DOMNodeInserted", saveTBNodeInfo, false);
   win.addEventListener("DOMNodeRemoved", saveTBNodeInfo, false);
