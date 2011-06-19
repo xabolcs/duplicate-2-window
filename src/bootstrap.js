@@ -84,28 +84,18 @@ default: //"Firefox", "SeaMonkey"
 const PREF_BRANCH = Services.prefs.getBranch("extensions."+ addonID +".");
 // pref defaults
 const PREFS = {
-  get key() _("duplicate2window.ak", getPref("locale")),
+  get key() _(PACKAGE + ".ak", getPref("locale")),
   modifiers: "accel",
-  locale: undefined
+  locale: undefined,
+  toolbar: null,
+  "toolbar.before": null
 };
+
+var prefChgHandlers = [];
 let PREF_OBSERVER = {
   observe: function(aSubject, aTopic, aData) {
     if ("nsPref:changed" != aTopic || !(aData in PREFS)) return;
-    runOnWindows(function(win) {
-      switch (aData) {
-        case "locale":
-          win.document.getElementById(keyID)
-              .setAttribute("label", _("duplicate2window", getPref("locale")));
-          break;
-        case "key":
-        case "modifiers":
-          win.document.getElementById(keyID)
-              .setAttribute(aData, getPref(aData));
-          break;
-      }
-      refreshKS(win.document.getElementById(keyID).parentNode);
-      addMenuItem(win);
-    }, XUL_APP.winType);
+    prefChgHandlers.forEach(function(func) func && func(aData));
   }
 }
 
@@ -137,6 +127,18 @@ function getPref(aName) {
   return PREFS[aName];
 }
 
+function setPref(aKey, aVal) {
+  aVal = ("wrapper-" + PACKAGE + "-toolbarbutton" == aVal) ? "" : aVal;
+  switch (typeof(aVal)) {
+    case "string":
+      var ss = Cc["@mozilla.org/supports-string;1"]
+          .createInstance(Ci.nsISupportsString);
+      ss.data = aVal;
+      PREF_BRANCH.setComplexValue(aKey, Ci.nsISupportsString, ss);
+      break;
+  }
+}
+
 function addMenuItem(win) {
   var $ = function(id) win.document.getElementById(id);
 
@@ -149,7 +151,7 @@ function addMenuItem(win) {
   // add the new menuitem to File menu
   let (D2WindowMI = win.document.createElementNS(NS_XUL, "menuitem")) {
     D2WindowMI.setAttribute("id", fileMenuitemID);
-    D2WindowMI.setAttribute("label", _("duplicate2window", getPref("locale")));
+    D2WindowMI.setAttribute("label", _(PACKAGE, getPref("locale")));
     D2WindowMI.setAttribute("accesskey", getPref("key"));
     D2WindowMI.setAttribute("key", keyID);
     D2WindowMI.addEventListener("command", newWindow, true);
@@ -202,9 +204,10 @@ function main(win) {
   try {
   let doc = win.document;
   function $(id) doc.getElementById(id);
+  function xul(type) doc.createElementNS(NS_XUL, type);
 
   // add hotkey
-  let (D2WindowKey = doc.createElementNS(NS_XUL, "key")) {
+  let (D2WindowKey = xul("key")) {
     D2WindowKey.setAttribute("id", keyID);
     D2WindowKey.setAttribute("key", getPref("key"));
     D2WindowKey.setAttribute("modifiers", getPref("modifiers"));
@@ -235,6 +238,47 @@ function main(win) {
     }
   }
   
+  // add toolbar button
+  let d2wTBB = xul("toolbarbutton");
+  d2wTBB.setAttribute("id", PACKAGE + "-toolbarbutton");
+  d2wTBB.setAttribute("type", "button");
+  d2wTBB.setAttribute("image", logo);
+  d2wTBB.setAttribute("class", "toolbarbutton-1 chromeclass-toolbar-additional");
+  d2wTBB.setAttribute("label", _(PACKAGE, getPref("locale")));
+  d2wTBB.addEventListener("command", newWindow, true);
+  let tbID = getPref("toolbar");
+  ($("navigator-toolbox") || $("mail-toolbox")).palette.appendChild(d2wTBB);
+  if (tbID) {
+    var tb = $(tbID);
+    if (tb)
+      tb.insertItem(PACKAGE + "-toolbarbutton", $(getPref("toolbar.before")), null, false);
+  }
+
+  function saveTBNodeInfo(aEvt) {
+    if (d2wTBB != aEvt.target) return;
+    d2wTBB.setAttribute("label", _(PACKAGE, getPref("locale")));
+    setPref("toolbar", d2wTBB.parentNode.getAttribute("id") || "");
+    setPref("toolbar.before", (d2wTBB.nextSibling || "") && d2wTBB.nextSibling.getAttribute("id"));
+  }
+  win.addEventListener("DOMNodeInserted", saveTBNodeInfo, false);
+  win.addEventListener("DOMNodeRemoved", saveTBNodeInfo, false);
+
+  var prefChgHanderIndex = prefChgHandlers.push(function(aData) {
+    switch (aData) {
+      case "locale":
+        let label = _(PACKAGE, getPref("locale"));
+        $(keyID).setAttribute("label", label);
+        d2wTBB.setAttribute("label", label);
+        break;
+      case "key":
+      case "modifiers":
+        $(keyID).setAttribute(aData, getPref(aData));
+        break;
+    }
+    refreshKS(win.document.getElementById(keyID).parentNode);
+    addMenuItem(win);
+  }) - 1;
+
   unload(function() {
     try {
     var key = $(keyID);
@@ -242,6 +286,13 @@ function main(win) {
     key && key.parentNode.removeChild(key);
     appMenu && appMenu.removeChild(D2WindowAMI);
     refreshKS(keyParent);
+    //d2wTBBB.parentNode.removeChild(d2wTBB);
+    d2wTBB.parentNode.removeChild(d2wTBB);
+    saveTBNodeInfo();
+    win.removeEventListener("DOMNodeInserted", saveTBNodeInfo);
+    win.removeEventListener("DOMNodeRemoved", saveTBNodeInfo, false);
+    prefChgHandlers[prefChgHanderIndex] = null;
+    
     } catch(ex){ reportError(ex); }
   }, win);
   
@@ -281,4 +332,4 @@ function uninstall(){}
 function startup(data) {
   startupGecko2x();
 }
-function shutdown(data, reason) { if (reason !== APP_SHUTDOWN) unload(); }
+function shutdown(data, reason) unload()
