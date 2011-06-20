@@ -103,8 +103,51 @@ const TYPE_BROWSER = "navigator:browser";
 
 let logo = "";
 
-(function(global) global.include = function include(src) (
-    Services.scriptloader.loadSubScript(src, global)))(this);
+
+/* Includes a javascript file with loadSubScript
+*
+* @param src (String)
+* The url of a javascript file to include.
+*/
+(function(global) global.include = function include(src) {
+  var o = {};
+  Components.utils.import("resource://gre/modules/Services.jsm", o);
+  var uri = o.Services.io.newURI(
+      src, null, o.Services.io.newURI(__SCRIPT_URI_SPEC__, null, null));
+  o.Services.scriptloader.loadSubScript(uri.spec, global);
+})(this);
+
+/* Imports a commonjs style javascript file with loadSubScrpt
+ * 
+ * @param src (String)
+ * The url of a javascript file.
+ */
+(function(global) {
+  var modules = {};
+  global.require = function require(src) {
+    if (modules[src]) return modules[src];
+    var scope = {require: global.require, exports: {}};
+    var tools = {};
+    Components.utils.import("resource://gre/modules/Services.jsm", tools);
+    var baseURI = tools.Services.io.newURI(__SCRIPT_URI_SPEC__, null, null);
+    try {
+      var uri = tools.Services.io.newURI(
+          "packages/" + src + ".js", null, baseURI);
+      tools.Services.scriptloader.loadSubScript(uri.spec, scope);
+    } catch (e) {
+      var uri = tools.Services.io.newURI(src, null, baseURI);
+      tools.Services.scriptloader.loadSubScript(uri.spec, scope);
+    }
+    return modules[src] = scope.exports;
+  }
+})(this);
+
+
+var {unload} = require("unload");
+var {runOnLoad, runOnWindows, watchWindows} = require("window-utils");
+include("includes/l10n.js");
+include("includes/prefs.js");
+
 
 if (!('setTimeout' in this)) {
   let Timer = Components.Constructor('@mozilla.org/timer;1', 'nsITimer', 'init');
@@ -320,16 +363,11 @@ function startupGecko2x() {
    
    var prefs = Services.prefs.getBranch(PREF_BRANCH);
 
-  // include utils
-  include(addon.getResourceURI("includes/utils.js").spec);
-
-  // init l10n
-  include(addon.getResourceURI("includes/l10n.js").spec);
+  // setup l10n
   l10n(addon, PACKAGE + ".properties");
   unload(l10n.unload);
 
-  // init prefs
-  include(addon.getResourceURI("includes/prefs.js").spec);
+  // setup prefs
   setDefaultPrefs();
 
   logo = addon.getResourceURI("images/d2w_16.png").spec;
