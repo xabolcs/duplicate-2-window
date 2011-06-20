@@ -6,4 +6,5 @@
   <setting pref="extensions.duplicate2window@szabolcs.hubai.modifiers" type="string" title="Hotkey modifiers">
     Default is "accel"
   </setting>
+  <setting pref="extensions.duplicate2window@szabolcs.hubai.locale" type="string" title="Locale"/>
 </vbox>
