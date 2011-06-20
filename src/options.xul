@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <setting pref="extensions.duplicate2window@szabolcs.hubai.key" type="string" title="Hotkey">
+    Default is "N"
+  </setting>
+  <setting pref="extensions.duplicate2window@szabolcs.hubai.modifiers" type="string" title="Hotkey modifiers">
+    Default is "accel"
+  </setting>
+</vbox>

@@ -81,14 +81,14 @@ default: //"Firefox", "SeaMonkey"
   XUL_APP.baseKeyset = "mainKeyset";
 }
 
-const PREF_BRANCH = Services.prefs.getBranch("extensions."+ addonID +".");
-// pref defaults
+const PREF_BRANCH = "extensions."+ addonID +".";
 const PREFS = {
-  get key() _(PACKAGE + ".ak", getPref("locale")),
   modifiers: "accel",
-  locale: undefined,
-  toolbar: null,
-  "toolbar.before": null
+  locale: Cc["@mozilla.org/chrome/chrome-registry;1"]
+      .getService(Ci.nsIXULChromeRegistry).getSelectedLocale("global"),
+  toolbar: "",
+  "toolbar.before": "",
+  get key() _(PACKAGE + ".ak", getPref("locale"))
 };
 
 var prefChgHandlers = [];
@@ -111,22 +111,6 @@ if (!('setTimeout' in this)) {
   this.setTimeout = function(fun, timeout) new Timer({observe: function() fun()}, timeout, 0);
 }    
     
-function getPref(aName) {
-  var pref = PREF_BRANCH;
-  var type = pref.getPrefType(aName);
-
-  // if the type is valid, then return the value
-  switch(type) {
-  case pref.PREF_STRING:
-    return pref.getComplexValue(aName, Ci.nsISupportsString).data;
-  case pref.PREF_BOOL:
-    return pref.getBoolPref(aName);
-  }
-
-  // return default
-  return PREFS[aName];
-}
-
 function setPref(aKey, aVal) {
   aVal = ("wrapper-" + PACKAGE + "-toolbarbutton" == aVal) ? "" : aVal;
   switch (typeof(aVal)) {
@@ -134,7 +118,8 @@ function setPref(aKey, aVal) {
       var ss = Cc["@mozilla.org/supports-string;1"]
           .createInstance(Ci.nsISupportsString);
       ss.data = aVal;
-      PREF_BRANCH.setComplexValue(aKey, Ci.nsISupportsString, ss);
+      Services.prefs.getBranch(PREF_BRANCH)
+          .setComplexValue(aKey, Ci.nsISupportsString, ss);
       break;
   }
 }
@@ -312,24 +297,40 @@ function main(win) {
 }
 
 function startupGecko19x(win) {
-  var prefs = PREF_BRANCH;
-  include(addon.getResourceURI("includes/l10n.js").spec);
+  var prefs = Services.prefs.getBranch(PREF_BRANCH);
+  
+  // utils
   include(addon.getResourceURI("includes/utils.js").spec);
-
+  
+  //l10n
+  include(addon.getResourceURI("includes/l10n.js").spec);
   l10n(addon, PACKAGE + ".properties");
-  unload(l10n.unload);
-
+  unload(l10n.unload);  
+  
+  // prefs
+  include(addon.getResourceURI("includes/prefs.js").spec);
+  setDefaultPrefs();
+  
+  
   main(win);
 }
 
 function startupGecko2x() {
   try {
-  var prefs = PREF_BRANCH;
-  include(addon.getResourceURI("includes/l10n.js").spec);
+   
+   var prefs = Services.prefs.getBranch(PREF_BRANCH);
+
+  // include utils
   include(addon.getResourceURI("includes/utils.js").spec);
 
+  // init l10n
+  include(addon.getResourceURI("includes/l10n.js").spec);
   l10n(addon, PACKAGE + ".properties");
   unload(l10n.unload);
+
+  // init prefs
+  include(addon.getResourceURI("includes/prefs.js").spec);
+  setDefaultPrefs();
 
   logo = addon.getResourceURI("images/d2w_16.png").spec;
   watchWindows(main, XUL_APP.winType);
