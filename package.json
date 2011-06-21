@@ -5,5 +5,5 @@
   "author": "Erik Vold <erikvvold@gmail.com> (http://erikvold.com)",
   "license": "MIT",
   "version": "0.1",
-  "dependencies": ["addon-kit", "api-utils", "l10n"]
+  "dependencies": ["addon-kit", "api-utils", "l10n", "application-utils"]
 }
