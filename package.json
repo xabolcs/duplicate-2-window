@@ -11,6 +11,7 @@
     "l10n",
     "application-utils",
     "vold-utils",
+    "menuitems",
     "toolbarbutton",
     "xulkeys"
   ]
