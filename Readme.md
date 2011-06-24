@@ -1,9 +1,17 @@
-Restartless Restart for Firefox 4
+Restart Jetpack for Firefox 4
 ===
-Tiny [restartless][1] extension adding browser restart actions to Firefox.
-(Oh, the irony)
 
-The main audience of this extension is other extension developers who need
-to restart the browser often.
+A example jetpack to restart the browser which adds a menuitem, a toolbar
+button, a (xul) hotkey, and is localized.
 
-[1]: https://developer.mozilla.org/en/Extensions/Bootstrapped_extensions
+Requires
+===
+
+This jetpack has a number of package dependencies:
+
+* [menuitems](https://github.com/erikvold/menuitems-jplib)
+* [xulkeys](https://github.com/erikvold/xulkeys-jplib)
+* [toolbarbutton](https://github.com/erikvold/toolbarbutton-jplib)
+* [vold-utils](https://github.com/erikvold/vold-utils-jplib)
+* [l10n](https://github.com/erikvold/l10n-jplib)
+* [application-utils](https://github.com/erikvold/application-utils-jplib)
