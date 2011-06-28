@@ -5,8 +5,8 @@
 		addEventListener('load', function() {
 			removeEventListener('load', arguments.callee, true);
 			let _m = {};
-			Components.utils.import("resource://duplicate2window/bootstrap.js", _m);
-			_m.startupGecko19x(window);
+			Components.utils.import("resource://duplicate2window/bootstrapGecko19x.js", _m);
+			_m.bootstrapGecko19x(window);
 		}, true);
 	]]></script>
 </overlay>
