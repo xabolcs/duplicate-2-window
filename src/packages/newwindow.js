@@ -30,6 +30,9 @@
 * ***** END LICENSE BLOCK ***** */
 
 
+let sstore = Components.classes['@mozilla.org/browser/sessionstore;1']
+  .getService(Components.interfaces.nsISessionStore);
+
 exports.newWindow = function newWindow(aEvt) {
   let window = aEvt.originalTarget;
   
@@ -39,10 +42,6 @@ exports.newWindow = function newWindow(aEvt) {
   }
   
   window = window.ownerDocument.defaultView
-  let newWindowUrl = window.gBrowser.currentURI.spec;
-  
-  // to be Google translate safe
-  newWindowUrl = newWindowUrl.replace(/\|/g, '%7C');
   
   let chromeUrl = "chrome://browser/content/";
   try
@@ -51,9 +50,25 @@ exports.newWindow = function newWindow(aEvt) {
   }
   catch (err) {}
   
-  
+  let newWindow;
+  let oldTab = window.gBrowser.selectedTab;
   try {
-    window.openDialog(chromeUrl, '_blank', 'chrome,all,dialog=no', newWindowUrl);
+    newWindow = window.openDialog(chromeUrl, '_blank', 'chrome,all,dialog=no');
+    
+    newWindow.addEventListener("load", function() {
+      newWindow.removeEventListener("load", arguments.callee, false);
+      
+      let startTab = newWindow.gBrowser.selectedTab;
+      startTab.collapsed = true;
+      
+      let newTab = sstore.duplicateTab(newWindow, oldTab);
+      newTab.addEventListener("load", function() {
+        newTab.removeEventListener("load", arguments.callee, false);
+        
+        newWindow.gBrowser.selectedTab = newTab;
+        newWindow.gBrowser.removeTab(startTab);
+      }, false);
+    }, false);
   } catch (err) {}
   
   return true;
