@@ -9,16 +9,16 @@ cd src
 cat install.rdf.in > install.rdf
 rm -rf build
 mkdir build
-cp -r \
-  bootstrap.js images includes locale install.rdf icon.png icon64.png options.xul duplicate2window.xul chrome.manifest \
-  build/
-cd build
 
-# Cleaning up unwanted files
-find . -depth -name '*~' -exec rm -rf "{}" \;
-find . -depth -name '#*' -exec rm -rf "{}" \;
-find . -depth -name '.DS_Store' -exec rm "{}" \;
-find . -depth -name 'Thumbs.db' -exec rm "{}" \;
+# Copying only the needed files
+find . -name '*.js' \
+  -o -name '*.png' \
+  -o -name '*.properties' \
+  -o -name '*.xul' \
+  -o -name 'install.rdf' \
+  -o -name '*.manifest' \
+  | xargs cp -t build --parents
+cd build 
 
 zip -qr9XD "../../$XPI" *
 
