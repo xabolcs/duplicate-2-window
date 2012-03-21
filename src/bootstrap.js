@@ -91,7 +91,11 @@ case "Thunderbird":
   XUL_APP.winType = "mail:3pane";
   XUL_APP.baseKeyset = "mailKeys";
   break;
-default: //"Firefox", "SeaMonkey"
+case "SeaMonkey":
+  XUL_APP.winType = "navigator:browser";
+  XUL_APP.baseKeyset = "navKeys";
+  break;
+default: //"Firefox"
   XUL_APP.winType = "navigator:browser";
   XUL_APP.baseKeyset = "mainKeyset";
 }
