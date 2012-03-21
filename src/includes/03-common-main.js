@@ -66,7 +66,12 @@ function main(win) {
     $(XUL_APP.baseKeyset).parentNode.appendChild(d2wKeyset).appendChild(D2WindowKey);
   }
   
-  /* refreshKS($(keyID).parentNode); */
+  // remove "key_newNavigator" until unload
+  let savedNewNavKey, savedNewNavKeyParent;
+  savedNewNavKey = $("key_newNavigator").cloneNode(true);
+  savedNewNavKeyParent = $("key_newNavigator").parentNode;
+  $("key_newNavigator") && savedNewNavKeyParent.removeChild($("key_newNavigator"));
+  refreshKS(savedNewNavKeyParent);
 
   // add menu bar item to File menu
   addMenuItem(win);
@@ -151,6 +156,7 @@ function main(win) {
     //key && key.parentNode.removeChild(key);
     d2wKeyset.parentNode.removeChild(d2wKeyset);
     appMenu && appMenu.removeChild(D2WindowAMI);
+    savedNewNavKeyParent.insertBefore(savedNewNavKey, $("key_newNavigatorTab"));
     /* refreshKS(keyParent); */
     //d2wTBBB.parentNode.removeChild(d2wTBB);
     d2wTBB.parentNode.removeChild(d2wTBB);
