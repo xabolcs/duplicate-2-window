@@ -48,7 +48,7 @@ function addMenuItem(win) {
     D2WindowMI.addEventListener("command", newWindow, true);
     D2WindowMI.style.listStyleImage = "url('" + logo + "')";
 
-    $("menu_FilePopup").insertBefore(D2WindowMI, $("menu_newNavigator"));
+    $("menu_newNavigator").parentNode.insertBefore(D2WindowMI, $("menu_newNavigator"));
   }
 
   unload(removeMI, win);

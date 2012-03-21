@@ -46,6 +46,38 @@ function refreshKS(aKeySet) {
   }
 }
 
+function overrideKeySave(key, keyParent, win) {
+  var $ = function(id) win.document.getElementById(id);
+  
+  let origKey = $("key_newNavigator");
+  if (origKey && (origKey.getAttribute("modifiers") == getPref("modifiers") &&
+    origKey.getAttribute("key") == getPref("key")))
+  {
+    key = origKey.cloneNode(true);
+    keyParent = origKey.parentNode;
+    
+    origKey && keyParent.removeChild(origKey);
+    refreshKS(keyParent);
+  } else {
+    key = null;
+    keyParent = null;
+  }
+}
+
+function overrideKeyRestore(origKey, keyParent, win) {
+  var $ = function(id) win.document.getElementById(id);
+  
+  if (origKey && (origKey.getAttribute("modifiers") != getPref("modifiers") ||
+    origKey.getAttribute("key") != getPref("key")))
+  {
+    let insertedKey = origKey.cloneNode(true);
+    origKey && keyParent.insertBefore(insertedKey, $("key_newNavigatorTab"));
+    refreshKS(keyParent);
+    origKey = null;
+    keyParent = null;
+  }
+}
+
 function main(win) {
   try {
   let doc = win.document;
@@ -68,10 +100,7 @@ function main(win) {
   
   // remove "key_newNavigator" until unload
   let savedNewNavKey, savedNewNavKeyParent;
-  savedNewNavKey = $("key_newNavigator").cloneNode(true);
-  savedNewNavKeyParent = $("key_newNavigator").parentNode;
-  $("key_newNavigator") && savedNewNavKeyParent.removeChild($("key_newNavigator"));
-  refreshKS(savedNewNavKeyParent);
+  overrideKeySave(savedNewNavKey, savedNewNavKeyParent, win);
 
   // add menu bar item to File menu
   addMenuItem(win);
@@ -145,7 +174,9 @@ function main(win) {
         $(keyID).setAttribute(aData, getPref(aData));
         break;
     }
-    //refreshKS(win.document.getElementById(keyID).parentNode);
+    overrideKeyRestore(savedNewNavKey, savedNewNavKeyParent, win);
+    overrideKeySave(savedNewNavKey, savedNewNavKeyParent, win);
+    
     addMenuItem(win);
   }) - 1;
 
@@ -156,7 +187,7 @@ function main(win) {
     //key && key.parentNode.removeChild(key);
     d2wKeyset.parentNode.removeChild(d2wKeyset);
     appMenu && appMenu.removeChild(D2WindowAMI);
-    savedNewNavKeyParent.insertBefore(savedNewNavKey, $("key_newNavigatorTab"));
+    savedNewNavKey && overrideKeyRestore(savedNewNavKey, savedNewNavKeyParent, win);
     /* refreshKS(keyParent); */
     //d2wTBBB.parentNode.removeChild(d2wTBB);
     d2wTBB.parentNode.removeChild(d2wTBB);
