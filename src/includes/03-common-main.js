@@ -30,7 +30,7 @@
  * ***** END LICENSE BLOCK ***** */
  
 function refreshKS(aKeySet) {
-  if (aKeySet) {
+  if (aKeySet) { try {
     var parent = aKeySet.parentNode;
     var nextn = aKeySet.nextSibling;
     parent.removeChild(aKeySet);
@@ -42,6 +42,7 @@ function refreshKS(aKeySet) {
     
     parent = void(0);
     nextn = void(0);
+  } catch (ex) { reportError (ex); reportError (aKeySet);}
   }
 }
 
@@ -51,6 +52,9 @@ function main(win) {
   function $(id) doc.getElementById(id);
   function xul(type) doc.createElementNS(NS_XUL, type);
 
+  let d2wKeyset = xul("keyset");
+  d2wKeyset.setAttribute("id", keysetID);
+
   // add hotkey
   let (D2WindowKey = xul("key")) {
     D2WindowKey.setAttribute("id", keyID);
@@ -58,10 +62,11 @@ function main(win) {
     D2WindowKey.setAttribute("modifiers", getPref("modifiers"));
     D2WindowKey.setAttribute("oncommand", "void(0);");
     D2WindowKey.addEventListener("command", newWindow, true);
-    $(XUL_APP.baseKeyset).insertBefore(D2WindowKey, $("key_newNavigator"));
+    /* $(XUL_APP.baseKeyset).insertBefore(D2WindowKey, $("key_newNavigator")); */
+    $(XUL_APP.baseKeyset).parentNode.appendChild(d2wKeyset).appendChild(D2WindowKey);
   }
   
-  refreshKS($(keyID).parentNode);
+  /* refreshKS($(keyID).parentNode); */
 
   // add menu bar item to File menu
   addMenuItem(win);
@@ -135,17 +140,18 @@ function main(win) {
         $(keyID).setAttribute(aData, getPref(aData));
         break;
     }
-    refreshKS(win.document.getElementById(keyID).parentNode);
+    //refreshKS(win.document.getElementById(keyID).parentNode);
     addMenuItem(win);
   }) - 1;
 
   unload(function() {
     try {
-    var key = $(keyID);
-    var keyParent = key.parentNode;
-    key && key.parentNode.removeChild(key);
+    //var key = $(keyID);
+    //var keyParent = key.parentNode;
+    //key && key.parentNode.removeChild(key);
+    d2wKeyset.parentNode.removeChild(d2wKeyset);
     appMenu && appMenu.removeChild(D2WindowAMI);
-    refreshKS(keyParent);
+    /* refreshKS(keyParent); */
     //d2wTBBB.parentNode.removeChild(d2wTBB);
     d2wTBB.parentNode.removeChild(d2wTBB);
     win.removeEventListener("aftercustomization", saveTBNodeInfo);
