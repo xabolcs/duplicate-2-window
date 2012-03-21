@@ -29,23 +29,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
  
-function refreshKS(aKeySet) {
-  if (aKeySet) { try {
-    var parent = aKeySet.parentNode;
-    var nextn = aKeySet.nextSibling;
-    parent.removeChild(aKeySet);
-    if (nextn) {
-      parent.insertBefore(aKeySet, nextn);
-    } else {
-      parent.appendChild(aKeySet);
-    }
-    
-    parent = void(0);
-    nextn = void(0);
-  } catch (ex) { reportError (ex); reportError (aKeySet);}
-  }
-}
-
 function overrideKeySave(key, keyParent, win) {
   var $ = function(id) win.document.getElementById(id);
   
@@ -53,14 +36,11 @@ function overrideKeySave(key, keyParent, win) {
   if (origKey && (origKey.getAttribute("modifiers") == getPref("modifiers") &&
     origKey.getAttribute("key") == getPref("key")))
   {
-    key = origKey.cloneNode(true);
+    //key = origKey.cloneNode(true);
     keyParent = origKey.parentNode;
     
-    origKey && keyParent.removeChild(origKey);
+    key = keyParent.removeChild(origKey);
     refreshKS(keyParent);
-  } else {
-    key = null;
-    keyParent = null;
   }
 }
 
@@ -98,9 +78,16 @@ function main(win) {
     $(XUL_APP.baseKeyset).parentNode.appendChild(d2wKeyset).appendChild(D2WindowKey);
   }
   
+  // create key container node
+  let d2wKCNode = xul("d2wkeycontainernode");
+  d2wKCNode.setAttribute("id", "duplicate-2-window-container");
+  $(XUL_APP.baseKeyset).parentNode.appendChild(d2wKCNode);
+  
+  updateNewNavigatorKey(win);
+  
   // remove "key_newNavigator" until unload
-  let savedNewNavKey, savedNewNavKeyParent;
-  overrideKeySave(savedNewNavKey, savedNewNavKeyParent, win);
+  //let savedNewNavKey, savedNewNavKeyParent;
+  //overrideKeySave(savedNewNavKey, savedNewNavKeyParent, win);
 
   // add menu bar item to File menu
   addMenuItem(win);
@@ -174,9 +161,9 @@ function main(win) {
         $(keyID).setAttribute(aData, getPref(aData));
         break;
     }
-    overrideKeyRestore(savedNewNavKey, savedNewNavKeyParent, win);
-    overrideKeySave(savedNewNavKey, savedNewNavKeyParent, win);
     
+    updateNewNavigatorKey(win);
+
     addMenuItem(win);
   }) - 1;
 
@@ -187,7 +174,8 @@ function main(win) {
     //key && key.parentNode.removeChild(key);
     d2wKeyset.parentNode.removeChild(d2wKeyset);
     appMenu && appMenu.removeChild(D2WindowAMI);
-    savedNewNavKey && overrideKeyRestore(savedNewNavKey, savedNewNavKeyParent, win);
+    d2wKCNode.parentNode.removeChild(d2wKCNode);
+    ////savedNewNavKey && overrideKeyRestore(savedNewNavKey, savedNewNavKeyParent, win);
     /* refreshKS(keyParent); */
     //d2wTBBB.parentNode.removeChild(d2wTBB);
     d2wTBB.parentNode.removeChild(d2wTBB);

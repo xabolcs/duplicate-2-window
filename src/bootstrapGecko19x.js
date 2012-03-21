@@ -152,6 +152,8 @@ if (!('setTimeout' in this)) {
 
 include("includes/02-common-menuitem.js");
 
+include("includes/02-common-navigatorkey.js");
+
 include("includes/03-common-main.js");
 
 function bootstrapGecko19x(win) {
