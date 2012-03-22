@@ -27,7 +27,6 @@
  * ***** END LICENSE BLOCK ***** */
  
 function updateNewNavigatorKey(win) {
-  //try {
   let $ = function(id) win.document.getElementById(id);
   let xul = function(type) win.document.createElementNS(NS_XUL, type);
   
@@ -93,8 +92,16 @@ function updateNewNavigatorKey(win) {
   
   restoreKey();
   
-  if (((navKey.getAttribute("modifiers") == getPref("modifiers") &&
-    navKey.getAttribute("key") == getPref("key"))) /*&& navKey.parentNode !== $("duplicate-2-window-container")*/)
+  let navKeyAttrModifiers, navKeyAttrKey;
+  navKeyAttrModifiers = navKey.getAttribute("modifiers");
+  if (!navKeyAttrModifiers)
+    navKeyAttrModifiers = navKey.getAttribute("d2wmodifiers");
+  navKeyAttrKey = navKey.getAttribute("key");
+  if (!navKeyAttrKey)
+    navKeyAttrKey = navKey.getAttribute("d2wkey");
+  
+  if ((navKeyAttrModifiers.replace(/control/,"accel").toLowerCase() == getPref("modifiers").replace(/control/,"accel").toLowerCase() &&
+    navKeyAttrKey.toLowerCase() == getPref("key").toLowerCase()) /*&& navKey.parentNode !== $("duplicate-2-window-container")*/)
   {
     removeKey();
   }
@@ -104,6 +111,5 @@ function updateNewNavigatorKey(win) {
     d2wKCNode && d2wKCNode.parentNode.removeChild(d2wKCNode);
   }, win);
   
-  //} catch (e) { Components.utils.reportError(e); win.alert(e); }
 }
 
