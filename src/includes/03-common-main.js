@@ -78,11 +78,6 @@ function main(win) {
     $(XUL_APP.baseKeyset).parentNode.appendChild(d2wKeyset).appendChild(D2WindowKey);
   }
   
-  // create key container node
-  let d2wKCNode = xul("d2wkeycontainernode");
-  d2wKCNode.setAttribute("id", "duplicate-2-window-container");
-  $(XUL_APP.baseKeyset).parentNode.appendChild(d2wKCNode);
-  
   updateNewNavigatorKey(win);
   
   // remove "key_newNavigator" until unload
@@ -174,7 +169,7 @@ function main(win) {
     //key && key.parentNode.removeChild(key);
     d2wKeyset.parentNode.removeChild(d2wKeyset);
     appMenu && appMenu.removeChild(D2WindowAMI);
-    d2wKCNode.parentNode.removeChild(d2wKCNode);
+    //d2wKCNode.parentNode.removeChild(d2wKCNode);
     ////savedNewNavKey && overrideKeyRestore(savedNewNavKey, savedNewNavKeyParent, win);
     /* refreshKS(keyParent); */
     //d2wTBBB.parentNode.removeChild(d2wTBB);
