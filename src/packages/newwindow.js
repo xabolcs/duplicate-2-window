@@ -30,8 +30,24 @@
 * ***** END LICENSE BLOCK ***** */
 
 
-let sstore = Components.classes['@mozilla.org/browser/sessionstore;1']
-  .getService(Components.interfaces.nsISessionStore);
+let xulAppInfo = Components.classes["@mozilla.org/xre/app-info;1"]
+                 .getService(Components.interfaces.nsIXULAppInfo);
+
+let newWindowConfig = {};
+switch(xulAppInfo.name) {
+case "SeaMonkey":
+  newWindowConfig.classes = "@mozilla.org/suite/sessionstore;1";
+  newWindowConfig.chromeUrl = "chrome://navigator/content/navigator.xul";
+  newWindowConfig.getChromeUrl = function (p) { return this.GetStringPref(p) };
+  break;
+default: //"Firefox"
+  newWindowConfig.classes = "@mozilla.org/browser/sessionstore;1";
+  newWindowConfig.chromeUrl = "chrome://browser/content/";
+  newWindowConfig.getChromeUrl = function (p) { return this.gPrefService.getCharPref(p) };
+}
+
+let sstore = Components.classes[newWindowConfig.classes]
+             .getService(Components.interfaces.nsISessionStore);
 
 exports.newWindow = function newWindow(aEvt) {
   let win = aEvt.originalTarget;
@@ -41,12 +57,12 @@ exports.newWindow = function newWindow(aEvt) {
     win = win.parentNode;
   }
   
-  win = win.ownerDocument.defaultView
+  win = win.ownerDocument.defaultView;
   
-  let chromeUrl = "chrome://browser/content/";
+  let chromeUrl = newWindowConfig.chromeUrl;
   try
   {
-    chromeUrl = win.gPrefService.getCharPref('browser.chromeURL');
+    chromeUrl = newWindowConfig.getChromeUrl.call(win,'browser.chromeURL');
   }
   catch (err) {}
   
