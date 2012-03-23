@@ -50,23 +50,23 @@ exports.newWindow = function newWindow(aEvt) {
   }
   catch (err) {}
   
-  let newWindow;
+  let aNewWindow;
   let oldTab = win.gBrowser.selectedTab;
   try {
-    newWindow = win.openDialog(chromeUrl, '_blank', 'chrome,all,dialog=no');
+    aNewWindow = win.openDialog(chromeUrl, '_blank', 'chrome,all,dialog=no');
     
-    newWindow.addEventListener("load", function() {
-      newWindow.removeEventListener("load", arguments.callee, false);
+    aNewWindow.addEventListener("load", function() {
+      aNewWindow.removeEventListener("load", arguments.callee, false);
       
-      let startTab = newWindow.gBrowser.selectedTab;
+      let startTab = aNewWindow.gBrowser.selectedTab;
       startTab.collapsed = true;
       
-      let newTab = sstore.duplicateTab(newWindow, oldTab);
+      let newTab = sstore.duplicateTab(aNewWindow, oldTab);
       newTab.addEventListener("load", function() {
         newTab.removeEventListener("load", arguments.callee, false);
         
-        newWindow.gBrowser.selectedTab = newTab;
-        newWindow.gBrowser.removeTab(startTab);
+        aNewWindow.gBrowser.selectedTab = newTab;
+        aNewWindow.gBrowser.removeTab(startTab);
       }, false);
     }, false);
   } catch (err) {}
