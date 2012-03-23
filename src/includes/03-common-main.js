@@ -28,35 +28,6 @@
  *   Szabolcs Hubai <szab.hu@gmail.com>
  *
  * ***** END LICENSE BLOCK ***** */
- 
-function overrideKeySave(key, keyParent, win) {
-  var $ = function(id) win.document.getElementById(id);
-  
-  let origKey = $("key_newNavigator");
-  if (origKey && (origKey.getAttribute("modifiers") == getPref("modifiers") &&
-    origKey.getAttribute("key") == getPref("key")))
-  {
-    //key = origKey.cloneNode(true);
-    keyParent = origKey.parentNode;
-    
-    key = keyParent.removeChild(origKey);
-    refreshKS(keyParent);
-  }
-}
-
-function overrideKeyRestore(origKey, keyParent, win) {
-  var $ = function(id) win.document.getElementById(id);
-  
-  if (origKey && (origKey.getAttribute("modifiers") != getPref("modifiers") ||
-    origKey.getAttribute("key") != getPref("key")))
-  {
-    let insertedKey = origKey.cloneNode(true);
-    origKey && keyParent.insertBefore(insertedKey, $("key_newNavigatorTab"));
-    refreshKS(keyParent);
-    origKey = null;
-    keyParent = null;
-  }
-}
 
 function main(win) {
   try {
@@ -74,15 +45,11 @@ function main(win) {
     D2WindowKey.setAttribute("modifiers", getPref("modifiers"));
     D2WindowKey.setAttribute("oncommand", "void(0);");
     D2WindowKey.addEventListener("command", newWindow, true);
-    /* $(XUL_APP.baseKeyset).insertBefore(D2WindowKey, $("key_newNavigator")); */
     $(XUL_APP.baseKeyset).parentNode.appendChild(d2wKeyset).appendChild(D2WindowKey);
   }
   
+  // override "key_newNavigator" on demand
   updateNewNavigatorKey(win);
-  
-  // remove "key_newNavigator" until unload
-  //let savedNewNavKey, savedNewNavKeyParent;
-  //overrideKeySave(savedNewNavKey, savedNewNavKeyParent, win);
 
   // add menu bar item to File menu
   addMenuItem(win);
@@ -164,15 +131,8 @@ function main(win) {
 
   unload(function() {
     try {
-    //var key = $(keyID);
-    //var keyParent = key.parentNode;
-    //key && key.parentNode.removeChild(key);
     d2wKeyset.parentNode.removeChild(d2wKeyset);
     appMenu && appMenu.removeChild(D2WindowAMI);
-    //d2wKCNode.parentNode.removeChild(d2wKCNode);
-    ////savedNewNavKey && overrideKeyRestore(savedNewNavKey, savedNewNavKeyParent, win);
-    /* refreshKS(keyParent); */
-    //d2wTBBB.parentNode.removeChild(d2wTBB);
     d2wTBB.parentNode.removeChild(d2wTBB);
     win.removeEventListener("aftercustomization", saveTBNodeInfo);
     prefChgHandlers[prefChgHanderIndex] = null;

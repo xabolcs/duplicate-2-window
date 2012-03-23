@@ -176,30 +176,3 @@ function bootstrapGecko19x(win) {
   
   setTimeout( function() main(win),100);
 }
-
-function startupGecko2x() {
-  try {
-   
-   var prefs = Services.prefs.getBranch(PREF_BRANCH);
-
-  // setup l10n
-  l10n(addon, PACKAGE + ".properties");
-  unload(l10n.unload);
-
-  // setup prefs
-  setDefaultPrefs();
-
-  logo = addon.getResourceURI("images/d2w_16.png").spec;
-  watchWindows(main, XUL_APP.winType);
-  prefs = prefs.QueryInterface(Components.interfaces.nsIPrefBranch2);
-  prefs.addObserver("", PREF_OBSERVER, false);
-  unload(function() prefs.removeObserver("", PREF_OBSERVER));
-  } catch(ex) { reportError(ex); }
-}
-
-function install(){}
-function uninstall(){}
-function startup(data) {
-  startupGecko2x();
-}
-function shutdown(data, reason) unload()
