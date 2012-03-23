@@ -34,26 +34,26 @@ let sstore = Components.classes['@mozilla.org/browser/sessionstore;1']
   .getService(Components.interfaces.nsISessionStore);
 
 exports.newWindow = function newWindow(aEvt) {
-  let window = aEvt.originalTarget;
+  let win = aEvt.originalTarget;
   
   // getting the root node ("main-window") to find our window
-  while (window.parentNode && window.parentNode.id) {
-    window = window.parentNode;
+  while (win.parentNode && win.parentNode.id) {
+    win = win.parentNode;
   }
   
-  window = window.ownerDocument.defaultView
+  win = win.ownerDocument.defaultView
   
   let chromeUrl = "chrome://browser/content/";
   try
   {
-    chromeUrl = window.gPrefService.getCharPref('browser.chromeURL');
+    chromeUrl = win.gPrefService.getCharPref('browser.chromeURL');
   }
   catch (err) {}
   
   let newWindow;
-  let oldTab = window.gBrowser.selectedTab;
+  let oldTab = win.gBrowser.selectedTab;
   try {
-    newWindow = window.openDialog(chromeUrl, '_blank', 'chrome,all,dialog=no');
+    newWindow = win.openDialog(chromeUrl, '_blank', 'chrome,all,dialog=no');
     
     newWindow.addEventListener("load", function() {
       newWindow.removeEventListener("load", arguments.callee, false);
