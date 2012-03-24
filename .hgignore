@@ -9,4 +9,4 @@ syntax: glob
 *.xpi
 build
 install.rdf
-
+duplicate2window@szabolcs.hubai
