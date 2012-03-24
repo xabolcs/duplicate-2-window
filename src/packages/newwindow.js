@@ -85,7 +85,10 @@ exports.newWindow = function newWindow(aEvt) {
         aNewWindow.gBrowser.removeTab(startTab);
       }, false);
     }, false);
-  } catch (err) {}
+  } catch (err) {
+    let newURL = win.gBrowser.currentURI.spec.replace(/\|/g, '%7C');
+    win.openDialog(chromeUrl, '_blank', 'chrome,all,dialog=no', newURL);
+  }
   
   return true;
 }
