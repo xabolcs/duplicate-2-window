@@ -28,7 +28,6 @@
  
 function updateNewNavigatorKey(win) {
   let $ = function(id) win.document.getElementById(id);
-  let xul = function(type) win.document.createElementNS(NS_XUL, type);
   
   let navKeyID = "key_newNavigator";
   let navKey = $(navKeyID);
@@ -40,7 +39,7 @@ function updateNewNavigatorKey(win) {
   let d2wKCNodeID = "duplicate-2-window-container";
   let d2wKCNode = $(d2wKCNodeID);
   if (!d2wKCNode) {
-    d2wKCNode = xul("duplicate2window");
+    d2wKCNode = win.document.createElementNS(NS_XUL, "duplicate2window");
     d2wKCNode.setAttribute("id", d2wKCNodeID);
     $(XUL_APP.baseKeyset).parentNode.appendChild(d2wKCNode);
   }

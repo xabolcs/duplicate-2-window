@@ -74,7 +74,6 @@ function main(win) {
   d2wTBB.setAttribute("image", logo);
   d2wTBB.setAttribute("class", "toolbarbutton-1 chromeclass-toolbar-additional");
   d2wTBB.setAttribute("label", _(PACKAGE, getPref("locale")));
-  d2wTBB.setAttribute("oncommand", "void(0);");
   
   d2wTBB.addEventListener("command", newWindow, true);
   let tbID = getPref("toolbar");
