@@ -26,13 +26,13 @@
       </r:Description>
     </targetApplication>
     <!-- SeaMonkey -->
-    <!-- <targetApplication>
+    <targetApplication>
       <r:Description>
         <id>{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}</id>
         <minVersion>2.1a3</minVersion>
         <maxVersion>2.7.*</maxVersion>
       </r:Description>
-    </targetApplication> -->
+    </targetApplication>
     <!-- Thunderbird -->
     <!-- <targetApplication>
       <r:Description>
