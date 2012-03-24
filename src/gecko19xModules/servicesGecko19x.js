@@ -8,4 +8,5 @@ var Services = {
     , ww: Components.classes["@mozilla.org/embedcomp/window-watcher;1"].getService(Components.interfaces.nsIWindowWatcher)
     , strings: Components.classes["@mozilla.org/intl/stringbundle;1"].getService(Components.interfaces.nsIStringBundleService)
     , io: Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService)
+    , vc: Components.classes["@mozilla.org/xpcom/version-comparator;1"].getService(Components.interfaces.nsIVersionComparator)
 }

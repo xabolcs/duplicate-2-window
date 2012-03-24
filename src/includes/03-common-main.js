@@ -77,10 +77,11 @@ function main(win) {
   
   d2wTBB.addEventListener("command", newWindow, true);
   let tbID = getPref("toolbar");
-  if (appMenu) ($("navigator-toolbox") || $("mail-toolbox")).palette.appendChild(d2wTBB);
+  if (Services.vc.compare(Services.appinfo.platformVersion, "2.0b1") >= 0)
+    ($("navigator-toolbox") || $("mail-toolbox")).palette.appendChild(d2wTBB);
   if (tbID) {
     var tb = $(tbID);
-    if (tb) {
+    if (tb && tb.insertItem) {
       let b4ID = getPref("toolbar.before");
       let b4 = $(b4ID);
       if (!b4) { // fallback for issue 34
