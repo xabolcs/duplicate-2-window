@@ -102,8 +102,6 @@ default: //"Firefox"
 
 include("includes/01-common-setup-prefs.js");
 
-const TYPE_BROWSER = "navigator:browser";
-
 let logo = "";
 
 
@@ -128,7 +126,7 @@ include("includes/03-common-main.js");
 function startupGecko2x() {
   try {
    
-   var prefs = Services.prefs.getBranch(PREF_BRANCH);
+  var prefs = Services.prefs.getBranch(PREF_BRANCH);
 
   // setup l10n
   l10n(addon, PACKAGE + ".properties");

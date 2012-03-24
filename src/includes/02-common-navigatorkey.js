@@ -101,7 +101,7 @@ function updateNewNavigatorKey(win) {
     navKeyAttrKey = navKey.getAttribute("d2wkey");
   
   if ((navKeyAttrModifiers.replace(/control/,"accel").toLowerCase() == getPref("modifiers").replace(/control/,"accel").toLowerCase() &&
-    navKeyAttrKey.toLowerCase() == getPref("key").toLowerCase()) /*&& navKey.parentNode !== $("duplicate-2-window-container")*/)
+    navKeyAttrKey.toLowerCase() == getPref("key").toLowerCase()))
   {
     removeKey();
   }

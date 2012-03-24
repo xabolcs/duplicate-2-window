@@ -30,7 +30,6 @@
  * ***** END LICENSE BLOCK ***** */
 
 function main(win) {
-  try {
   let doc = win.document;
   function $(id) doc.getElementById(id);
   function xul(type) doc.createElementNS(NS_XUL, type);
@@ -58,7 +57,6 @@ function main(win) {
   // add app menu item to Firefox button for Windows 7
   let appMenu = $("appmenu_newNavigator"), D2WindowAMI;
   if (appMenu) {
-    try {
       appMenu = appMenu.parentNode;
       D2WindowAMI = $(fileMenuitemID).cloneNode(false);
       D2WindowAMI.setAttribute("id", "appmenu_DuplicateToWindowItem");
@@ -66,9 +64,6 @@ function main(win) {
       D2WindowAMI.style.listStyleImage = "url('" + logo + "')";
       D2WindowAMI.addEventListener("command", newWindow, true);
       appMenu.insertBefore(D2WindowAMI, $("appmenu_newNavigator"));
-    } catch(ex) {
-      reportError(ex);
-    }
   }
   
   // add toolbar button on FF4+
@@ -79,7 +74,7 @@ function main(win) {
   d2wTBB.setAttribute("image", logo);
   d2wTBB.setAttribute("class", "toolbarbutton-1 chromeclass-toolbar-additional");
   d2wTBB.setAttribute("label", _(PACKAGE, getPref("locale")));
-  d2wTBB.setAttribute("oncommand", "void(0);");;
+  d2wTBB.setAttribute("oncommand", "void(0);");
   
   d2wTBB.addEventListener("command", newWindow, true);
   let tbID = getPref("toolbar");
@@ -108,7 +103,7 @@ function main(win) {
     setPref("toolbar", d2wTBB.parentNode.getAttribute("id") || "");
     setPref("toolbar.before", (d2wTBB.nextSibling || "")
         && d2wTBB.nextSibling.getAttribute("id").replace(/^wrapper-/i, ""));
-   }
+  }
   win.addEventListener("aftercustomization", saveTBNodeInfo, false);
 
   var prefChgHanderIndex = prefChgHandlers.push(function(aData) {
@@ -130,16 +125,12 @@ function main(win) {
   }) - 1;
 
   unload(function() {
-    try {
     d2wKeyset.parentNode.removeChild(d2wKeyset);
     appMenu && appMenu.removeChild(D2WindowAMI);
     d2wTBB.parentNode.removeChild(d2wTBB);
     win.removeEventListener("aftercustomization", saveTBNodeInfo);
     prefChgHandlers[prefChgHanderIndex] = null;
-    
-    } catch(ex){ reportError(ex); }
   }, win);
   
-  } catch(ex){ reportError(ex); }
 }
 
